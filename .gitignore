@@ -1,0 +1,52 @@
+# ===== 编译产物 =====
+build/
+bin/
+obj/
+out/
+Debug/
+Release/
+
+# ===== CMake =====
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+install_manifest.txt
+compile_commands.json
+
+# ===== Visual Studio =====
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# ===== VS Code =====
+.vscode/
+
+# ===== 编译生成文件 =====
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+*.o
+*.obj
+
+# ===== 调试 / 崩溃文件 =====
+*.pdb
+*.ilk
+*.dmp
+
+# ===== 临时文件 =====
+*.tmp
+*.temp
+*.log
+
+# ===== 操作系统文件 =====
+.DS_Store
+Thumbs.db
+desktop.ini
