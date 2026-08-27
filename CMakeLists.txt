@@ -25,6 +25,10 @@ target_include_directories(XLWS_DS_algorithm
 
 enable_testing()
 
+# ==============================
+# Merge Sort 测试
+# ==============================
+
 add_executable(test_merge_sort
     tests/algorithm/sort/MergeSortTest.cpp
 )
@@ -34,7 +38,6 @@ target_link_libraries(test_merge_sort
         XLWS_DS_algorithm
 )
 
-# 测试程序输出目录
 set_target_properties(test_merge_sort
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY
@@ -44,4 +47,28 @@ set_target_properties(test_merge_sort
 add_test(
     NAME MergeSortTest
     COMMAND test_merge_sort
+)
+
+# ==============================
+# Shell Sort 测试
+# ==============================
+
+add_executable(test_shell_sort
+    tests/algorithm/sort/ShellSortTest.cpp
+)
+
+target_link_libraries(test_shell_sort
+    PRIVATE
+        XLWS_DS_algorithm
+)
+
+set_target_properties(test_shell_sort
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY
+        "${CMAKE_BINARY_DIR}/tests/algorithm/sort"
+)
+
+add_test(
+    NAME ShellSortTest
+    COMMAND test_shell_sort
 )

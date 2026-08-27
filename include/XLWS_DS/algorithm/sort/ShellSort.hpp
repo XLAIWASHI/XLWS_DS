@@ -9,8 +9,9 @@ namespace xlws
     void shellSort(RandomIt first, RandomIt last, Compare cmp)
     {
         using DifferenceType = typename std::iterator_traits<RandomIt>::difference_type;
+        using ValueType = typename std::iterator_traits<RandomIt>::value_type;
 
-        const auto size = last - first;
+        const DifferenceType size = last - first;
         DifferenceType h = 1;
         while(3 * h + 1 < size)
         {
@@ -21,10 +22,14 @@ namespace xlws
         {
             for(DifferenceType i = h; i < size; i++)
             {
-                for(DifferenceType j = i; j >= h && cmp(*(first + i), *(first + j - h)); j-= h)
+                ValueType key = *(first + i); // 当前元素
+
+                DifferenceType j = i;
+                for(; j >= h && cmp(key, *(first + j - h)); j-= h)
                 {
-                    //todo
+                    *(first + j) = *(first + j - h);
                 }
+                *(first + j) = key;
             }
             h = (h - 1) / 3;
         }
