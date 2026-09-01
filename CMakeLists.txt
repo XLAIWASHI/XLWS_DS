@@ -72,3 +72,27 @@ add_test(
     NAME ShellSortTest
     COMMAND test_shell_sort
 )
+
+# ==============================
+# Selection Sort 测试
+# ==============================
+
+add_executable(test_selection_sort
+    tests/algorithm/sort/SelectSortTest.cpp
+)
+
+target_link_libraries(test_selection_sort
+    PRIVATE
+        XLWS_DS_algorithm
+)
+
+set_target_properties(test_selection_sort
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY
+        "${CMAKE_BINARY_DIR}/tests/algorithm/sort"
+)
+
+add_test(
+    NAME SelectionSortTest
+    COMMAND test_selection_sort
+)

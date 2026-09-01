@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include "XLWS_DS/algorithm/Sort/mergeSort.hpp"
+#include "XLWS_DS/algorithm/sort/SelectSort.hpp"
 
-int main(void)  
+int main(void)
 {
     int arr[] = {5, 2, 8, 1, 3, 6};
 
-    xlws::mergeSort(arr, arr + 6);
+    xlws::selectSort(arr, arr + 6);
 
     for(int value : arr)
     {
