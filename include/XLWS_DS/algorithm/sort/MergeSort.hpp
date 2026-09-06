@@ -28,9 +28,9 @@ namespace xlws
 
             std::size_t index = 0;
 
-            while(left != mid && right != last)
+            while (left != mid && right != last)
             {
-                if(cmp(*right, *left))
+                if (cmp(*right, *left))
                 {
                     temp[index++] = *right++;
                 }
@@ -40,16 +40,16 @@ namespace xlws
                 }
             }
             // 单侧提前走完
-            while(left != mid)
+            while (left != mid)
             {
                 temp[index++] = *left++;
             }
-            while(right != last)
+            while (right != last)
             {
                 temp[index++] = *right++;
             }
             // 移动回原地址
-            for(std::size_t i = 0; i < index; ++i)
+            for (std::size_t i = 0; i < index; ++i)
             {
                 *(first + i) = std::move(temp[i]);
             }
@@ -63,7 +63,7 @@ namespace xlws
     {
         const auto distance = last - first;
 
-        if(distance <= 1)
+        if (distance <= 1)
             return;
         
         RandomIt mid = first + distance / 2;

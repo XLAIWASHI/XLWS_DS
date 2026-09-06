@@ -13,19 +13,19 @@ namespace xlws
 
         const DifferenceType size = last - first;
         DifferenceType h = 1;
-        while(3 * h + 1 < size)
+        while (3 * h + 1 < size)
         {
             h = 3 * h + 1;
         }
 
-        while(h >= 1)
+        while (h >= 1)
         {
-            for(DifferenceType i = h; i < size; i++)
+            for (DifferenceType i = h; i < size; i++)
             {
                 ValueType key = *(first + i); // 当前元素
 
                 DifferenceType j = i;
-                for(; j >= h && cmp(key, *(first + j - h)); j-= h)
+                for (; j >= h && cmp(key, *(first + j - h)); j-= h)
                 {
                     *(first + j) = *(first + j - h);
                 }

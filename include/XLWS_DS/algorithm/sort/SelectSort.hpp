@@ -13,12 +13,12 @@ namespace xlws
 
         const DifferenceType size = last - first;
 
-        for(DifferenceType i = 0; i < size; i++)
+        for (DifferenceType i = 0; i < size; i++)
         {
             DifferenceType min = i;
-            for(DifferenceType j = i + 1; j < size; j++)
+            for (DifferenceType j = i + 1; j < size; j++)
             {
-                if(cmp(*(first + j), *(first + min)))
+                if (cmp(*(first + j), *(first + min)))
                 {
                     min = j;
                 }
