@@ -12,12 +12,12 @@ namespace xlws
         RandomIt partition(RandomIt first, RandomIt last, Compare cmp)
         {
             using ValueType = typename std::iterator_traits<RandomIt>::value_type;
-            using DifferenctType = typename std::iterator_traits<RandomIt>::difference_type;
+            using DifferenceType = typename std::iterator_traits<RandomIt>::difference_type;
 
-            const DifferenctType size = last - first;
+            const DifferenceType size = last - first;
 
-            DifferenctType lo = 0;
-            DifferenctType hi = size - 1;
+            DifferenceType lo = 0;
+            DifferenceType hi = size - 1;
 
             const ValueType pivot = *first;
 
@@ -51,12 +51,14 @@ namespace xlws
     RandomIt quickSelect(RandomIt first, RandomIt last,
         typename std::iterator_traits<RandomIt>::difference_type k, Compare cmp)
     {
-        using DifferenctType = typename std::iterator_traits<RandomIt>::difference_type;
-        DifferenctType lo = 0, hi = (last - first) - 1;
+        using DifferenceType = typename std::iterator_traits<RandomIt>::difference_type;
+        DifferenceType lo = 0, hi = (last - first) - 1;
 
         while (lo < hi)
         {
-            DifferenctType j = detail::partition(first + lo, first + hi + 1, cmp);
+            RandomIt split = detail::partition(first + lo, first + hi + 1, cmp);
+            DifferenceType j = split - first;
+            
             if (j < k)
             {
                 lo = j + 1;
@@ -70,6 +72,13 @@ namespace xlws
                 return first + j;
             }
         }
-        return first + hi;
+        return first + lo;
+    }
+
+    template <typename RandomIt>
+    RandomIt quickSelect(RandomIt first, RandomIt last,
+        typename std::iterator_traits<RandomIt>::difference_type k)
+    {
+        return quickSelect(first, last, k, std::less<>{});
     }
 }
