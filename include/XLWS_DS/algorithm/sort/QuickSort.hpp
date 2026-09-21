@@ -2,6 +2,7 @@
 
 #include <iterator>
 #include <functional>
+#include <utility>
 #include "XLWS_DS/utility/Swap.hpp"
 
 namespace xlws
@@ -9,7 +10,7 @@ namespace xlws
     namespace detail
     {
         template <typename RandomIt, typename Compare>
-        RandomIt partition(RandomIt first, RandomIt last, Compare cmp)
+        std::pair<RandomIt, RandomIt> partition(RandomIt first, RandomIt last, Compare cmp)
         {
             using ValueType = typename std::iterator_traits<RandomIt>::value_type;
             using DifferenceType = typename std::iterator_traits<RandomIt>::difference_type;
@@ -18,33 +19,30 @@ namespace xlws
 
             DifferenceType lo = 0;
             DifferenceType hi = size - 1;
-            
+            DifferenceType i = lo;
+
             const ValueType pivot = *first;
 
-            while (true)
+            while (i <= hi)
             {
-                // 保证pivot不变位置
-                while (lo < hi && cmp(*(first + lo + 1), pivot))
+                if (cmp(*(first + i), pivot))
                 {
+                    xlws::swap(first + i, first + lo);
                     ++lo;
+                    ++i;
                 }
-
-                while (lo < hi && cmp(pivot, *(first + hi)))
+                else if (cmp(pivot, *(first + i)))
                 {
-                    --hi;
+                    xlws::swap(first + i, first + hi);
+                    hi--;
                 }
-
-                if (lo >= hi)
+                else
                 {
-                    break;
+                    ++i;
                 }
-
-                xlws::swap(first + lo + 1, first + hi);
-                ++lo;
-                --hi;
             }
-            xlws::swap(first, first + hi);
-            return first + hi;
+            
+            return {first + lo, first + hi + 1};
         }
     }
 
@@ -55,9 +53,13 @@ namespace xlws
         {
             return;
         }
-        RandomIt split = detail::partition(first, last, cmp);
-        quickSort(first, split, cmp);
-        quickSort(split + 1, last, cmp);
+        const auto result = detail::partition(first, last, cmp);
+
+        const RandomIt middleFirst = result.first;
+        const RandomIt middleLast = result.second;
+
+        quickSort(first, middleFirst, cmp);
+        quickSort(middleLast, last, cmp);
     }
 
     template <typename RandomIt>
