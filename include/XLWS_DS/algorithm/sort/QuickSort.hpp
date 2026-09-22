@@ -3,12 +3,27 @@
 #include <iterator>
 #include <functional>
 #include <utility>
+#include <random>
 #include "XLWS_DS/utility/Swap.hpp"
 
 namespace xlws
 {
     namespace detail
     {
+        template <typename RandomIt>
+        void choosePivotRandomly(RandomIt first, RandomIt last)
+        {
+            using DifferenceType = typename std::iterator_traits<RandomIt>::difference_type;
+            
+            static std::mt19937 gen(std::random_device{}());
+
+            std::uniform_int_distribution<DifferenceType> dist(0, last - first - 1);
+
+            RandomIt pivot = first + dist(gen);
+
+            xlws::swap(first, pivot);
+        }
+
         template <typename RandomIt, typename Compare>
         std::pair<RandomIt, RandomIt> partition(RandomIt first, RandomIt last, Compare cmp)
         {
@@ -21,6 +36,8 @@ namespace xlws
             DifferenceType hi = size - 1;
             DifferenceType i = lo;
 
+            // 随机选取pivot
+            detail::choosePivotRandomly(first, last);
             const ValueType pivot = *first;
 
             while (i <= hi)
@@ -34,7 +51,7 @@ namespace xlws
                 else if (cmp(pivot, *(first + i)))
                 {
                     xlws::swap(first + i, first + hi);
-                    hi--;
+                    --hi;
                 }
                 else
                 {
@@ -49,17 +66,29 @@ namespace xlws
     template <typename RandomIt, typename Compare>
     void quickSort(RandomIt first, RandomIt last, Compare cmp)
     {
-        if (last - first <= 1)
+        while (last - first > 1)
         {
-            return;
+            const auto result = detail::partition(first, last, cmp);
+
+            const RandomIt middleFirst = result.first;
+            const RandomIt middleLast = result.second;
+
+            const auto leftSize = middleFirst - first;
+            const auto rightSize = last - middleLast;
+
+            if (leftSize < rightSize)
+            {
+                // 左边小：递归处理左边
+                quickSort(first, middleFirst, cmp);
+                first = middleLast;
+            }
+            else
+            {
+                // 右边小：递归处理右边
+                quickSort(middleLast, last, cmp);
+                last = middleFirst;
+            }
         }
-        const auto result = detail::partition(first, last, cmp);
-
-        const RandomIt middleFirst = result.first;
-        const RandomIt middleLast = result.second;
-
-        quickSort(first, middleFirst, cmp);
-        quickSort(middleLast, last, cmp);
     }
 
     template <typename RandomIt>
