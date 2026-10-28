@@ -10,7 +10,7 @@ add_executable(
 target_link_libraries(
     test_stack
     PRIVATE
-    XLWS_DS_algorithm
+    XLWS_DS_data_structure
 )
 
 add_test(

@@ -7,20 +7,20 @@
 namespace xlws
 {
     template <typename T>
-    class Stack
+    class stack
     {
     public:
-        Stack() : data(new T[1]), size(0), capacity(1)
+        stack() : data(new T[1]), size(0), capacity(1)
         {
         }
-        ~Stack()
+        ~stack()
         {
             delete[] data;
         }
 
         // 禁止拷贝
-        Stack(const Stack&) = delete;
-        Stack& operator=(const Stack&) = delete;
+        stack(const stack&) = delete;
+        stack& operator=(const stack&) = delete;
 
         bool isEmpty() const { return size == 0; }
 

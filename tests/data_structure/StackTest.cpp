@@ -5,7 +5,7 @@
 
 int main(void)
 {
-    xlws::Stack<int> st = xlws::Stack<int>();
+    xlws::stack<int> st = xlws::stack<int>();
     for (size_t i = 0; i < 10; i++)
     {
         st.push(i);

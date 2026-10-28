@@ -19,6 +19,13 @@ target_include_directories(XLWS_DS_algorithm
         ${PROJECT_SOURCE_DIR}/include
 )
 
+add_library(XLWS_DS_data_structure INTERFACE)
+
+target_include_directories(XLWS_DS_data_structure
+    INTERFACE
+        ${PROJECT_SOURCE_DIR}/include
+)
+
 # ==============================
 # 测试
 # ==============================
