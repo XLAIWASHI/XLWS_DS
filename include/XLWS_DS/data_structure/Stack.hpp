@@ -10,27 +10,27 @@ namespace xlws
     class stack
     {
     public:
-        stack() : data(new T[1]), size(0), capacity(1)
+        stack() : data_(new T[1]), size_(0), capacity_(1)
         {
         }
         ~stack()
         {
-            delete[] data;
+            delete[] data_;
         }
 
         // 禁止拷贝
         stack(const stack&) = delete;
         stack& operator=(const stack&) = delete;
 
-        bool isEmpty() const { return size == 0; }
+        bool isEmpty() const { return size_ == 0; }
 
         void push(T item)
         {
-            if (size == capacity)
+            if (size_ == capacity_)
             {
-                resize(capacity * 2);
+                resize(capacity_ * 2);
             }
-            data[size++] = std::move(item);
+            data_[size_++] = std::move(item);
         }
 
         T pop()
@@ -39,33 +39,33 @@ namespace xlws
             {
                 throw std::underflow_error("Pop from empty stack");
             }
-            T item = std::move(data[--size]);
+            T item = std::move(data_[--size_]);
 
-            if (size > 0 && size == capacity / 4)
+            if (size_ > 0 && size_ == capacity_ / 4)
             {
-                resize(capacity / 2);
+                resize(capacity_ / 2);
             }
             return item;
         }
     private:
         void resize(std::size_t newCapacity)
         {
-            T* newData = new T[newCapacity];
+            T* newdata = new T[newCapacity];
 
-            for (std::size_t i = 0; i < size; i++)
+            for (std::size_t i = 0; i < size_; i++)
             {
-                newData[i] = std::move(data[i]);
+                newdata[i] = std::move(data_[i]);
             }
 
-            delete[] data;
+            delete[] data_;
 
-            data = newData;
-            capacity = newCapacity;
+            data_ = newdata;
+            capacity_ = newCapacity;
         }
 
-        T* data;
-        std::size_t capacity = 0;
-        std::size_t size = 0;
+        T* data_;
+        std::size_t capacity_ = 0;
+        std::size_t size_ = 0;
     };
 
 }
