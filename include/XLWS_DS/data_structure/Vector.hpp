@@ -59,6 +59,7 @@ public:
         ++size_;
     }
 
+    // operator 运算符重载，遇到一个东西后面有 []，就调用这个函数
     T& operator[](std::size_t index)
     {
         return data_[index];

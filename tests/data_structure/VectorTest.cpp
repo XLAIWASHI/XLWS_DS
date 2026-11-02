@@ -10,10 +10,11 @@ int main(void)
     arr.push_back(34);
     arr.push_back(12);
 
-    // for (int i = 0; i < arr.size(); ++i)
-    // {
-    //     std::cout << arr[i] << " ";
-    // }
+    for (int i = 0; i < arr.size(); ++i)
+    {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << std::endl;
 
     std::cout << arr.size() << " " << arr.capacity();
 
