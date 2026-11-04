@@ -26,6 +26,14 @@ public:
 
     std::size_t capacity() const { return capacity_; }
 
+    bool empty() const { return size_ == 0; }
+
+    T& front() { return data_[0]; }
+    const T& front() const { return data_[0]; }
+
+    T& back() { return data_[size_ - 1]; }
+    const T& back() const { return data_[size_ - 1]; }
+
     void reserve(std::size_t new_capacity) // 保留内存
     {
         if (new_capacity <= capacity_) return;
@@ -57,6 +65,23 @@ public:
 
         xlws::memory::construct(data_ + size_, value);
         ++size_;
+    }
+
+    void pop_back()
+    {
+        if (size_ == 0)
+            return;
+        xlws::memory::destroy(data_ + size_ - 1);
+        --size_;
+    }
+
+    void clear() // 清空所有对象，但不释放内存
+    {
+        for (size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::destroy(data_ + i);
+        }
+        size_ = 0;
     }
 
     // operator 运算符重载，遇到一个东西后面有 []，就调用这个函数
