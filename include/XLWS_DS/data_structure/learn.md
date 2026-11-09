@@ -83,3 +83,34 @@ void printVector(const vector<T>& v)
 
 - **浅拷贝**： 只复制 **指针** 两个对象共享一块内存
 - **深拷贝**： 重新申请一块新内存，把内容复制过去，两个对象拥有各自独立的内存
+
+## 深拷贝实现
+
+```cpp
+    vector(const vector& other)
+    {
+        data_ = xlws::memory::allocate<T>(other.capacity_);
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::construct(data_ + i, other.data_[i]);
+        }
+    }
+
+    vector& operator=(const vector& other)
+    {
+        if (this != &other) // 防止自己给自己赋值
+        {
+            vector temp(other);
+
+            xlws::swap(data_, temp.data_);
+            xlws::swap(size_, temp.size_);
+            xlws::swap(capacity_, temp.capacity_);
+        }
+        return *this;
+    }
+```
+
+如果在写 v1 = v2;（普通赋值）的时候，我们不知道当前 v1 数组有多大的旧容量，所以我们新建一个 temp 辅助。将 this 和 temp 的指针交换，就实现了复制数据的功能。最后 temp 作为局部变量，在函数结束时自动析构，顺便将 this 原本的旧数据清除了

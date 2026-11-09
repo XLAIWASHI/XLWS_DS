@@ -13,6 +13,31 @@ public:
 
     }
 
+    vector(const vector& other)
+    {
+        data_ = xlws::memory::allocate<T>(other.capacity_);
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::construct(data_ + i, other.data_[i]);
+        }
+    }
+
+    vector& operator=(const vector& other)
+    {
+        if (this != &other) // 防止自己给自己赋值
+        {
+            vector temp(other);
+
+            xlws::swap(data_, temp.data_);
+            xlws::swap(size_, temp.size_);
+            xlws::swap(capacity_, temp.capacity_);
+        }
+        return *this;
+    }
+
     ~vector()
     {
         for (std::size_t i = 0; i < size_; ++i)
@@ -94,6 +119,40 @@ public:
     {
         return data_[index];
     }
+
+    class iterator
+    {
+    public:
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T*;
+        using reference = T&;
+
+        // 构造函数
+        iterator(pointer ptr = nullptr) : ptr_(ptr) {}
+
+        reference operator*() const { return *ptr_; }
+
+        iterator& operator++()
+        {
+            ++ptr_;
+            return *this;
+        }
+
+        iterator operator+(difference_type n) const { return iterator(ptr_ + n); }
+        difference_type operator-(const iterator& other) const { return ptr - other.ptr_; }
+        bool operator<(const iterator& other) const { return ptr_ < other.ptr_; }
+        bool operator>(const iterator& other) const { return ptr_ > other.ptr_; }
+
+        bool operator!=(const iterator& other) const
+        {
+            return ptr_ != other.ptr_;
+        }
+    
+    private:
+        pointer ptr_;    
+    };
 
 private:
     T* data_ = nullptr;

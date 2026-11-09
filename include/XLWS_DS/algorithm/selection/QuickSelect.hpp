@@ -38,11 +38,11 @@ namespace xlws
                     break;
                 }
 
-                xlws::swap(first + lo + 1, first + hi);
+                xlws::iter_swap(first + lo + 1, first + hi);
                 ++lo;
                 --hi;
             }
-            xlws::swap(first, first + hi);
+            xlws::iter_swap(first, first + hi);
             return first + hi;
         }
     }

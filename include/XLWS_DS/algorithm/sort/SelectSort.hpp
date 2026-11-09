@@ -23,7 +23,7 @@ namespace xlws
                     min = j;
                 }
             }
-            xlws::swap(first + i, first + min);
+            xlws::iter_swap(first + i, first + min);
         }
     }
 
