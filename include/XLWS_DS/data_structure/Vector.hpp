@@ -123,11 +123,11 @@ public:
     class iterator
     {
     public:
-        using iterator_category = std::random_access_iterator_tag;
-        using value_type = T;
-        using difference_type = std::ptrdiff_t;
-        using pointer = T*;
-        using reference = T&;
+        using iterator_category = std::random_access_iterator_tag; // 迭代器类别
+        using value_type = T;                                      // 元素类型
+        using difference_type = std::ptrdiff_t;                    // 两个迭代器之间的距离类型
+        using pointer = T*;                                        // 指针类型
+        using reference = T&;                                      // 引用类型
 
         // 构造函数
         iterator(pointer ptr = nullptr) : ptr_(ptr) {}
@@ -153,6 +153,9 @@ public:
     private:
         pointer ptr_;    
     };
+
+    iterator begin() { return iterator(data_); }
+    iterator end() { return iterator(data_ + size_); }
 
 private:
     T* data_ = nullptr;
