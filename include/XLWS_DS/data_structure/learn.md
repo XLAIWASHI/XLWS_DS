@@ -114,3 +114,33 @@ void printVector(const vector<T>& v)
 ```
 
 如果在写 v1 = v2;（普通赋值）的时候，我们不知道当前 v1 数组有多大的旧容量，所以我们新建一个 temp 辅助。将 this 和 temp 的指针交换，就实现了复制数据的功能。最后 temp 作为局部变量，在函数结束时自动析构，顺便将 this 原本的旧数据清除了
+
+# 小结4：前置后置迭代器
+
+```cpp
+iterator& operator++() // 前置
+{
+    ++ptr_;
+    return *this;
+}
+
+iterator operator++(int) // 后置, int只做区分前后置
+{
+    iterator temp = *this;
+    ++ptr_;
+    return temp;
+}
+```
+
+---
+**为什么后置不用引用呢？** 
+
+因为后置递增需要保留递增之前的位置，所以先创建一个 temp 副本，然后让当前迭代器递增，最后返回 temp
+
+但是 temp 是局部变量，函数执行结束后就会销毁
+
+如果返回 iterator&，就会产生悬空引用，因此后置递增返回 iterator，而不是 iterator&
+
+**补充理解：** 
+
+迭代器副本和原迭代器是两个独立的对象，但它们可以指向同一个数组元素

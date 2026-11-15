@@ -1,6 +1,11 @@
 #pragma once
 
+#include <cstddef>
+#include <iterator>
+#include <utility>
+
 #include "XLWS_DS/memory/Memory.hpp"
+#include "XLWS_DS/utility/Swap.hpp"
 
 namespace xlws
 {
@@ -10,7 +15,6 @@ class vector
 public:
     vector() : data_(nullptr), size_(0), capacity_(0)
     {
-
     }
 
     vector(const vector& other)
@@ -59,7 +63,7 @@ public:
     T& back() { return data_[size_ - 1]; }
     const T& back() const { return data_[size_ - 1]; }
 
-    void reserve(std::size_t new_capacity) // 保留内存
+    void reserve(std::size_t new_capacity) // 保留内存，只增大容量，不减少容量
     {
         if (new_capacity <= capacity_) return;
 
@@ -78,6 +82,47 @@ public:
 
         data_ = new_data;
         capacity_ = new_capacity;
+    }
+
+    void shrink_to_fit(std::size_t new_capacity) // 只缩容，不改变size_
+    {
+        if (new_capacity >= capacity_) return;
+        if (new_capacity < size_) return;
+
+        // 如果 new_capacity == 0 那么直接清除 只有 size_ 为0时才可能触发
+        if (new_capacity == 0)
+        {
+            xlws::memory::deallocate(data_);
+            data_ = nullptr;
+            capacity_ = 0;
+            return;
+        }
+
+        // 申请内存
+        T* new_data = xlws::memory::allocate<T>(new_capacity);
+
+        // 移动对象
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::construct(new_data + i, std::move(data_[i]));
+        }
+
+        // 清理旧对象
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::destroy(data_ + i);
+        }
+
+        // 释放旧内存
+        xlws::memory::deallocate(data_);
+
+        data_ = new_data;
+        capacity_ = new_capacity;
+    }
+
+    void shrink_to_fit()
+    {
+        shrink_to_fit(size_);
     }
 
     void push_back(const T& value)
@@ -109,6 +154,34 @@ public:
         size_ = 0;
     }
 
+    void resize(const std::size_t new_size, const T& value)
+    {
+        if (new_size > size_)
+        {
+            if (new_size > capacity_)
+            {
+                reserve(new_size);
+            }
+            for (std::size_t i = size_; i < new_size; ++i)
+            {
+                xlws::memory::construct(data_ + i, value);
+            }
+        }
+        else if (new_size < size_)
+        {
+            for (std::size_t i = new_size; i < size_; ++i)
+            {
+                xlws::memory::destroy(data_ + i);
+            }
+        }
+        size_ = new_size;
+    }
+
+    void resize(std::size_t new_size)
+    {
+        resize(new_size, T());
+    }
+
     // operator 运算符重载，遇到一个东西后面有 []，就调用这个函数
     T& operator[](std::size_t index)
     {
@@ -134,22 +207,74 @@ public:
 
         reference operator*() const { return *ptr_; }
 
-        iterator& operator++()
+        iterator& operator++() // 前置
         {
             ++ptr_;
             return *this;
         }
 
+        iterator operator++(int) // 后置, int只做区分前后置
+        {
+            iterator temp = *this;
+            ++ptr_;
+            return temp;
+        }
+
+        iterator& operator--()
+        {
+            --ptr_;
+            return *this;
+        }
+
+        iterator operator--(int)
+        {
+            iterator temp = *this;
+            --ptr_;
+            return temp;
+        }
+
         iterator operator+(difference_type n) const { return iterator(ptr_ + n); }
-        difference_type operator-(const iterator& other) const { return ptr - other.ptr_; }
+
+        // it.operator+(n);
+        friend iterator operator+(difference_type n, const iterator& it)
+        {
+            return it + n;
+        }
+
+        difference_type operator-(const iterator& other) const { return ptr_ - other.ptr_; }
+        iterator operator-(difference_type n) const { return iterator(ptr_ - n); }
+        pointer operator->() const { return ptr_; }
         bool operator<(const iterator& other) const { return ptr_ < other.ptr_; }
         bool operator>(const iterator& other) const { return ptr_ > other.ptr_; }
+        bool operator>=(const iterator& other) const { return ptr_ >= other.ptr_; }
+        bool operator<=(const iterator& other) const { return ptr_ <= other.ptr_; }
 
         bool operator!=(const iterator& other) const
         {
             return ptr_ != other.ptr_;
         }
-    
+
+        bool operator==(const iterator& other) const
+        {
+            return ptr_ == other.ptr_;
+        }
+
+        iterator& operator+=(difference_type n)
+        {
+            ptr_ += n;
+            return *this;
+        }
+
+        iterator& operator-=(difference_type n)
+        {
+            ptr_ -= n;
+            return *this;
+        }
+        
+        reference operator[](difference_type n) const
+        {
+            return ptr_[n];
+        }
     private:
         pointer ptr_;    
     };

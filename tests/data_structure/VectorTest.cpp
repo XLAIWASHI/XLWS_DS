@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "XLWS_DS/data_structure/Vector.hpp"
+#include "XLWS_DS/algorithm/sort/QuickSort.hpp"
 
 int main(void)
 {
@@ -10,23 +11,37 @@ int main(void)
     arr.push_back(34);
     arr.push_back(12);
 
-    for (int i = 0; i < arr.size(); ++i)
+    for (int x : arr)
     {
-        std::cout << arr[i] << " ";
+        std::cout << x << " ";
     }
     std::cout << std::endl;
 
-    std::cout << arr.size() << " " << arr.capacity() << std::endl;
+    xlws::quickSort(arr.begin(), arr.end());
+    for (int x : arr)
+    {
+        std::cout << x << " ";
+    }
+    std::cout << std::endl;
 
-    std::cout << "front: " << arr.front() << " " << "back: " << arr.back() << std::endl;
 
-    std::cout << arr.empty() << std::endl;
+    // 缩容
+    xlws::vector<int> v;
+    v.reserve(100); // 强行申请 100 的容量
+    v.push_back(10);
+    v.push_back(20);
+    v.push_back(30);
 
-    arr.pop_back();
+    std::cout << "缩容前: size = " << v.size() << ", capacity = " << v.capacity() << "\n";
 
-    std::cout << "pop_back back: " << arr.back() << std::endl;
+    v.shrink_to_fit(); // 触发缩容，容量应该变成 3
 
-    
+    std::cout << "缩容后: size = " << v.size() << ", capacity = " << v.capacity() << "\n";
+
+    for (auto it = v.begin(); it != v.end(); ++it) {
+        std::cout << *it << " ";
+    }
+    std::cout << "\n";
 
     return 0;
 }
