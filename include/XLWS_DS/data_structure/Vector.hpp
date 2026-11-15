@@ -1,0 +1,292 @@
+#pragma once
+
+#include <cstddef>
+#include <iterator>
+#include <utility>
+
+#include "XLWS_DS/memory/Memory.hpp"
+#include "XLWS_DS/utility/Swap.hpp"
+
+namespace xlws
+{
+template <typename T>
+class vector
+{
+public:
+    vector() : data_(nullptr), size_(0), capacity_(0)
+    {
+    }
+
+    vector(const vector& other)
+    {
+        data_ = xlws::memory::allocate<T>(other.capacity_);
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::construct(data_ + i, other.data_[i]);
+        }
+    }
+
+    vector& operator=(const vector& other)
+    {
+        if (this != &other) // 防止自己给自己赋值
+        {
+            vector temp(other);
+
+            xlws::swap(data_, temp.data_);
+            xlws::swap(size_, temp.size_);
+            xlws::swap(capacity_, temp.capacity_);
+        }
+        return *this;
+    }
+
+    ~vector()
+    {
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::destroy(data_ + i);
+        }
+        xlws::memory::deallocate(data_);
+    }
+
+    std::size_t size() const { return size_; }
+
+    std::size_t capacity() const { return capacity_; }
+
+    bool empty() const { return size_ == 0; }
+
+    T& front() { return data_[0]; }
+    const T& front() const { return data_[0]; }
+
+    T& back() { return data_[size_ - 1]; }
+    const T& back() const { return data_[size_ - 1]; }
+
+    void reserve(std::size_t new_capacity) // 保留内存，只增大容量，不减少容量
+    {
+        if (new_capacity <= capacity_) return;
+
+        T* new_data = xlws::memory::allocate<T>(new_capacity); // 申请内存
+
+        for (std::size_t i = 0; i < size_; ++i)                // 将旧对象移动到新内存
+        {
+            xlws::memory::construct(new_data + i, std::move(data_[i]));
+        }
+
+        for (std::size_t i = 0; i < size_; ++i)                //清除旧对象
+        {
+            xlws::memory::destroy(data_ + i);
+        }
+        xlws::memory::deallocate(data_);                       // 清除内存
+
+        data_ = new_data;
+        capacity_ = new_capacity;
+    }
+
+    void shrink_to_fit(std::size_t new_capacity) // 只缩容，不改变size_
+    {
+        if (new_capacity >= capacity_) return;
+        if (new_capacity < size_) return;
+
+        // 如果 new_capacity == 0 那么直接清除 只有 size_ 为0时才可能触发
+        if (new_capacity == 0)
+        {
+            xlws::memory::deallocate(data_);
+            data_ = nullptr;
+            capacity_ = 0;
+            return;
+        }
+
+        // 申请内存
+        T* new_data = xlws::memory::allocate<T>(new_capacity);
+
+        // 移动对象
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::construct(new_data + i, std::move(data_[i]));
+        }
+
+        // 清理旧对象
+        for (std::size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::destroy(data_ + i);
+        }
+
+        // 释放旧内存
+        xlws::memory::deallocate(data_);
+
+        data_ = new_data;
+        capacity_ = new_capacity;
+    }
+
+    void shrink_to_fit()
+    {
+        shrink_to_fit(size_);
+    }
+
+    void push_back(const T& value)
+    {
+        if (size_ == capacity_)
+        {
+            // push_back 只考虑添加数据，不考虑删除数据，所以不用考虑缩容，只用reserve就行
+            reserve(capacity_ == 0 ? 1 : capacity_ * 2);
+        }
+
+        xlws::memory::construct(data_ + size_, value);
+        ++size_;
+    }
+
+    void pop_back()
+    {
+        if (size_ == 0)
+            return;
+        xlws::memory::destroy(data_ + size_ - 1);
+        --size_;
+    }
+
+    void clear() // 清空所有对象，但不释放内存
+    {
+        for (size_t i = 0; i < size_; ++i)
+        {
+            xlws::memory::destroy(data_ + i);
+        }
+        size_ = 0;
+    }
+
+    void resize(const std::size_t new_size, const T& value)
+    {
+        if (new_size > size_)
+        {
+            if (new_size > capacity_)
+            {
+                reserve(new_size);
+            }
+            for (std::size_t i = size_; i < new_size; ++i)
+            {
+                xlws::memory::construct(data_ + i, value);
+            }
+        }
+        else if (new_size < size_)
+        {
+            for (std::size_t i = new_size; i < size_; ++i)
+            {
+                xlws::memory::destroy(data_ + i);
+            }
+        }
+        size_ = new_size;
+    }
+
+    void resize(std::size_t new_size)
+    {
+        resize(new_size, T());
+    }
+
+    // operator 运算符重载，遇到一个东西后面有 []，就调用这个函数
+    T& operator[](std::size_t index)
+    {
+        return data_[index];
+    }
+
+    const T& operator[](std::size_t index) const
+    {
+        return data_[index];
+    }
+
+    class iterator
+    {
+    public:
+        using iterator_category = std::random_access_iterator_tag; // 迭代器类别
+        using value_type = T;                                      // 元素类型
+        using difference_type = std::ptrdiff_t;                    // 两个迭代器之间的距离类型
+        using pointer = T*;                                        // 指针类型
+        using reference = T&;                                      // 引用类型
+
+        // 构造函数
+        iterator(pointer ptr = nullptr) : ptr_(ptr) {}
+
+        reference operator*() const { return *ptr_; }
+
+        iterator& operator++() // 前置
+        {
+            ++ptr_;
+            return *this;
+        }
+
+        iterator operator++(int) // 后置, int只做区分前后置
+        {
+            iterator temp = *this;
+            ++ptr_;
+            return temp;
+        }
+
+        iterator& operator--()
+        {
+            --ptr_;
+            return *this;
+        }
+
+        iterator operator--(int)
+        {
+            iterator temp = *this;
+            --ptr_;
+            return temp;
+        }
+
+        iterator operator+(difference_type n) const { return iterator(ptr_ + n); }
+
+        // it.operator+(n);
+        friend iterator operator+(difference_type n, const iterator& it)
+        {
+            return it + n;
+        }
+
+        difference_type operator-(const iterator& other) const { return ptr_ - other.ptr_; }
+        iterator operator-(difference_type n) const { return iterator(ptr_ - n); }
+        pointer operator->() const { return ptr_; }
+        bool operator<(const iterator& other) const { return ptr_ < other.ptr_; }
+        bool operator>(const iterator& other) const { return ptr_ > other.ptr_; }
+        bool operator>=(const iterator& other) const { return ptr_ >= other.ptr_; }
+        bool operator<=(const iterator& other) const { return ptr_ <= other.ptr_; }
+
+        bool operator!=(const iterator& other) const
+        {
+            return ptr_ != other.ptr_;
+        }
+
+        bool operator==(const iterator& other) const
+        {
+            return ptr_ == other.ptr_;
+        }
+
+        iterator& operator+=(difference_type n)
+        {
+            ptr_ += n;
+            return *this;
+        }
+
+        iterator& operator-=(difference_type n)
+        {
+            ptr_ -= n;
+            return *this;
+        }
+        
+        reference operator[](difference_type n) const
+        {
+            return ptr_[n];
+        }
+    private:
+        pointer ptr_;    
+    };
+
+    iterator begin() { return iterator(data_); }
+    iterator end() { return iterator(data_ + size_); }
+
+private:
+    T* data_ = nullptr;
+    std::size_t capacity_ = 0;
+    std::size_t size_ = 0;
+    
+};
+
+}

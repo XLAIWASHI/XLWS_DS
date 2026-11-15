@@ -21,7 +21,7 @@ namespace xlws
 
             RandomIt pivot = first + dist(gen);
 
-            xlws::swap(first, pivot);
+            xlws::iter_swap(first, pivot);
         }
 
         template <typename RandomIt, typename Compare>
@@ -44,13 +44,13 @@ namespace xlws
             {
                 if (cmp(*(first + i), pivot))
                 {
-                    xlws::swap(first + i, first + lo);
+                    xlws::iter_swap(first + i, first + lo);
                     ++lo;
                     ++i;
                 }
                 else if (cmp(pivot, *(first + i)))
                 {
-                    xlws::swap(first + i, first + hi);
+                    xlws::iter_swap(first + i, first + hi);
                     --hi;
                 }
                 else
