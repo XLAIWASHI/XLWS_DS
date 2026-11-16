@@ -147,7 +147,7 @@ public:
 
     void clear() // 清空所有对象，但不释放内存
     {
-        for (size_t i = 0; i < size_; ++i)
+        for (std::size_t i = 0; i < size_; ++i)
         {
             xlws::memory::destroy(data_ + i);
         }
