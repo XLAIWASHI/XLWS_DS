@@ -37,3 +37,23 @@ add_test(
     NAME VectorTest
     COMMAND test_vector
 )
+
+# ==============================
+# Heap Test
+# ==============================
+
+add_executable(
+    test_heap
+    HeapTest.cpp
+)
+
+target_link_libraries(
+    test_heap
+    PRIVATE
+    XLWS_DS_data_structure
+)
+
+add_test(
+    NAME HeapTest
+    COMMAND test_heap
+)

@@ -14,8 +14,6 @@ class heap
 public:
     heap() = default;
 
-
-
     void push(const T& value)
     {
         data_.push_back(value);
@@ -32,7 +30,10 @@ public:
     }
 
     T& top() { return data_[0]; }
+    const T& top() const { return data_[0]; }
     bool empty() { return data_.empty(); }
+    std::size_t size() const { return data_.size(); }
+
 
 
 private:

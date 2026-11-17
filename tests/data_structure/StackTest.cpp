@@ -16,4 +16,6 @@ int main(void)
         std::cout << st.pop() << " ";
     }
     std::cout << std::endl;
+
+    return 0;
 }
